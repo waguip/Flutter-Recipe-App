@@ -8,10 +8,10 @@ class RecipeDetails extends StatefulWidget {
   RecipeDetails({super.key, required this.recipe});
 
   @override
-  State<StatefulWidget> createState() => RecipeDetailsState();
+  State<RecipeDetails> createState() => _RecipeDetailsState();
 }
 
-class RecipeDetailsState extends State<RecipeDetails> {
+class _RecipeDetailsState extends State<RecipeDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +27,7 @@ class RecipeDetailsState extends State<RecipeDetails> {
                 title: '',
                 rating: widget.recipe.rating.toInt(),
                 imageUrl: widget.recipe.image,
+                favorited: true,
               ),
               const SizedBox(height: 20),
               const Text(

@@ -4,12 +4,14 @@ class RecipeCard extends StatelessWidget {
   final String title;
   final int rating;
   final String imageUrl;
+  final bool favorited;
 
   const RecipeCard({
     super.key,
     required this.title,
     required this.rating,
     required this.imageUrl,
+    required this.favorited,
   });
 
   @override
@@ -33,7 +35,7 @@ class RecipeCard extends StatelessWidget {
       child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
             child: Text(
               title,
               style: const TextStyle(
@@ -43,23 +45,44 @@ class RecipeCard extends StatelessWidget {
             ),
           ),
           Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: EdgeInsets.all(5),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.yellow,
+            alignment: Alignment.bottomRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        color: Colors.yellow,
+                      ),
+                      Text(
+                        '$rating',
+                        style: TextStyle(fontSize: 20),
+                      )
+                    ],
                   ),
-                  Text(
-                    '$rating',
-                    style: TextStyle(fontSize: 20),
-                  )
-                ],
-              ),
+                ),
+                if (favorited)
+                  const Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Icon(
+                      Icons.favorite,
+                      color: Colors.red,
+                    ),
+                  ),
+                if (!favorited)
+                  const Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: Color.fromARGB(255, 125, 34, 27),
+                    ),
+                  ),
+              ],
             ),
-          )
+          ),
         ],
       ),
     );

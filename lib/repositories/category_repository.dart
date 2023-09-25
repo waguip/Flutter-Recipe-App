@@ -17,21 +17,21 @@ class CategoryRepository {
       name: 'Almoço',
       iconPath: 'assets',
       icon: const Icon(Icons.fastfood),
-      boxColor: Color.fromARGB(255, 47, 79, 154),
+      boxColor: const Color.fromARGB(255, 47, 79, 154),
     ));
 
     categories.add(CategoryModel(
       name: 'Lanche',
       iconPath: 'assets',
       icon: const Icon(Icons.fastfood),
-      boxColor: Color.fromARGB(255, 108, 116, 18),
+      boxColor: const Color.fromARGB(255, 108, 116, 18),
     ));
 
     categories.add(CategoryModel(
       name: 'Doce',
       iconPath: 'assets',
       icon: const Icon(Icons.fastfood),
-      boxColor: Color.fromARGB(255, 100, 42, 147),
+      boxColor: const Color.fromARGB(255, 100, 42, 147),
     ));
 
     return categories;

@@ -1,27 +1,28 @@
+import 'dart:collection';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/recipe_model.dart';
 
-class FavoritesRepository {
-  static List<RecipeModel> getFavRecipes() {
-    List<RecipeModel> favRecipes = [];
+class FavoritesRepository extends ChangeNotifier {
+  List<RecipeModel> _favRecipes = [];
 
-    favRecipes.add(RecipeModel(
-      name: 'Receita A',
-      image: 'a',
-      rating: 2,
-      time: 10,
-      ingredients: 'aaa',
-      steps: 'bbb',
-    ));
+  UnmodifiableListView<RecipeModel> get favRecipes =>
+      UnmodifiableListView(_favRecipes);
 
-    favRecipes.add(RecipeModel(
-      name: 'Receita B',
-      image: 'a',
-      rating: 3,
-      time: 10,
-      ingredients: 'aaa',
-      steps: 'bbb',
-    ));
+  save(RecipeModel recipe) {
+    if (!_favRecipes.contains(recipe)) _favRecipes.add(recipe);
+    notifyListeners();
+  }
 
-    return favRecipes;
+  saveAll(List<RecipeModel> recipes) {
+    recipes.forEach((recipe) {
+      if (!_favRecipes.contains(recipe)) _favRecipes.add(recipe);
+    });
+    notifyListeners();
+  }
+
+  remove(RecipeModel recipe) {
+    _favRecipes.remove(recipe);
+    notifyListeners();
   }
 }

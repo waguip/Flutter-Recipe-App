@@ -2,42 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/category_model.dart';
 import 'package:flutter_application_1/repositories/category_repository.dart';
 import 'package:flutter_application_1/repositories/favorites_repository.dart';
+import 'package:flutter_application_1/repositories/recipe_repository.dart';
 import 'package:flutter_application_1/views/recipe_details.dart';
 import 'package:flutter_application_1/views/widgets/recipe_card.dart';
+import 'package:flutter_application_1/views/widgets/search_field.dart';
+import 'package:provider/provider.dart';
 import '../models/recipe_model.dart';
 
-class Home extends StatelessWidget {
-  Home({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   List<CategoryModel> categories = [];
-  List<RecipeModel> favRecipes = [];
+  List<RecipeModel> topRecipes = [];
 
   RecipeModel dayRecipeTemp = RecipeModel(
     name: 'Macarrão ao molho branco',
     image: 'sla',
     rating: 5,
     time: 10,
-    ingredients: 'aaaa',
-    steps: 'bbbb',
+    ingredients:
+        '1 cebola pequena picada,\n1 colher de margarina,\n1 caixa de creme de leite,\n1/2 litro de leite',
+    steps:
+        '1. Em uma panela, derreta a margarina e acrescente a cebola, o sal e a pimenta-do-reino. \n 2.  Quando a cebola estiver bem transparente, acrescente o creme de leite e misture.',
   );
 
   void _getCategories() {
     categories = CategoryRepository.getCategories();
   }
 
-  void _getFavRecipes() {
-    favRecipes = FavoritesRepository.getFavRecipes();
-  }
-
-  void initState() {
-    _getCategories();
-    _getFavRecipes();
+  void _getTopRecipes() {
+    topRecipes = RecipeRepository.getRecipes();
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     _getCategories();
-    _getFavRecipes();
+    _getTopRecipes();
+  }
+
+  late FavoritesRepository favoritesRep;
+
+  @override
+  Widget build(BuildContext context) {
+    favoritesRep = context.watch<FavoritesRepository>();
+
+    _getCategories();
+    _getTopRecipes();
 
     return Scaffold(
       body: NestedScrollView(
@@ -45,25 +61,17 @@ class Home extends StatelessWidget {
         headerSliverBuilder: (context, _) => [appBar()],
         body: ListView(
           children: [
-            searchField(),
-            dayRecipe(),
+            const searchField(),
+            dayRecipe(context),
             categoriesSection(),
-            favorites(),
+            topRecipesColumn(),
           ],
         ),
       ),
-      bottomNavigationBar: bottomBar(),
     );
   }
 
-  Container bottomBar() {
-    return Container(
-      color: Colors.white,
-      height: 50,
-    );
-  }
-
-  Column favorites() {
+  Column topRecipesColumn() {
     return Column(
       children: [
         Padding(
@@ -72,24 +80,44 @@ class Home extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Favoritas',
+                'Top Receitas',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               ListView.separated(
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  return GestureDetector(
-                    child: RecipeCard(
-                      title: favRecipes[index].name,
-                      rating: favRecipes[index].rating.toInt(),
-                      imageUrl: 'nao',
-                    ),
-                    onTap: () => seeRecipeDetails(context, favRecipes[index]),
-                  );
+                  if (favoritesRep.favRecipes.contains(topRecipes[index])) {
+                    return GestureDetector(
+                      child: RecipeCard(
+                        title: topRecipes[index].name,
+                        rating: topRecipes[index].rating.toInt(),
+                        imageUrl: 'nao',
+                        favorited: true,
+                      ),
+                      onTap: () => seeRecipeDetails(context, topRecipes[index]),
+                      onLongPress: () {
+                        favoritesRep.save(topRecipes[index]);
+                      },
+                    );
+                  } else {
+                    return GestureDetector(
+                      child: RecipeCard(
+                        title: topRecipes[index].name,
+                        rating: topRecipes[index].rating.toInt(),
+                        imageUrl: 'nao',
+                        favorited: false,
+                      ),
+                      onTap: () => seeRecipeDetails(context, topRecipes[index]),
+                      onLongPress: () {
+                        favoritesRep.save(topRecipes[index]);
+                      },
+                    );
+                  }
                 },
-                separatorBuilder: (context, index) => SizedBox(height: 25),
-                itemCount: favRecipes.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 25),
+                itemCount: topRecipes.length,
               ),
             ],
           ),
@@ -107,9 +135,9 @@ class Home extends StatelessWidget {
     );
   }
 
-  Padding dayRecipe() {
+  Padding dayRecipe(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -118,10 +146,17 @@ class Home extends StatelessWidget {
             style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          RecipeCard(
-            title: dayRecipeTemp.name,
-            rating: dayRecipeTemp.rating.toInt(),
-            imageUrl: 'sla',
+          GestureDetector(
+            child: RecipeCard(
+              title: dayRecipeTemp.name,
+              rating: dayRecipeTemp.rating.toInt(),
+              imageUrl: 'sla',
+              favorited: false,
+            ),
+            onTap: () => seeRecipeDetails(context, dayRecipeTemp),
+            onLongPress: () {
+              favoritesRep.save(dayRecipeTemp);
+            },
           ),
         ],
       ),
@@ -191,22 +226,6 @@ class Home extends StatelessWidget {
 
 searchByCategory(CategoryModel category) {
   print('sla');
-}
-
-Container searchField() {
-  return Container(
-    margin: const EdgeInsets.only(left: 20, right: 20),
-    decoration: const BoxDecoration(boxShadow: [
-      BoxShadow(color: Colors.black, blurRadius: 40, spreadRadius: 1.0)
-    ]),
-    child: const TextField(
-      decoration: InputDecoration(
-        hintText: 'Procurar Receitas',
-        filled: true,
-        prefixIcon: Icon(Icons.search),
-      ),
-    ),
-  );
 }
 
 SliverAppBar appBar() {
