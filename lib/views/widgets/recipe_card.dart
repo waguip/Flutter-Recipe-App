@@ -50,7 +50,7 @@ class RecipeCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
-                  padding: EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(5),
                   child: Row(
                     children: [
                       const Icon(
@@ -59,7 +59,7 @@ class RecipeCard extends StatelessWidget {
                       ),
                       Text(
                         '$rating',
-                        style: TextStyle(fontSize: 20),
+                        style: const TextStyle(fontSize: 20),
                       )
                     ],
                   ),

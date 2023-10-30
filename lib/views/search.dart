@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/views/widgets/search_field.dart';
 
 class Search extends StatefulWidget {
+  const Search({super.key});
+
   @override
   _SearchState createState() => _SearchState();
 }
@@ -14,8 +16,8 @@ class _SearchState extends State<Search> {
         floatHeaderSlivers: true,
         headerSliverBuilder: (context, _) => [appBar()],
         body: ListView(
-          children: [
-            searchField(),
+          children: const [
+            SearchField(),
           ],
         ),
       ),

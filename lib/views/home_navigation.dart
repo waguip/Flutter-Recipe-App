@@ -33,7 +33,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
       body: PageView(
         controller: pc,
         onPageChanged: setCurrentPage,
-        children: [
+        children: const [
           Home(),
           Search(),
           Favorites(),

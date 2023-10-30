@@ -61,7 +61,7 @@ class _HomeState extends State<Home> {
         headerSliverBuilder: (context, _) => [appBar()],
         body: ListView(
           children: [
-            const searchField(),
+            const SearchField(),
             dayRecipe(context),
             categoriesSection(),
             topRecipesColumn(),

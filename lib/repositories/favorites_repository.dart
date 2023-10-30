@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/recipe_model.dart';
 
 class FavoritesRepository extends ChangeNotifier {
-  List<RecipeModel> _favRecipes = [];
+  final List<RecipeModel> _favRecipes = [];
 
   UnmodifiableListView<RecipeModel> get favRecipes =>
       UnmodifiableListView(_favRecipes);
@@ -15,9 +15,9 @@ class FavoritesRepository extends ChangeNotifier {
   }
 
   saveAll(List<RecipeModel> recipes) {
-    recipes.forEach((recipe) {
+    for (var recipe in recipes) {
       if (!_favRecipes.contains(recipe)) _favRecipes.add(recipe);
-    });
+    }
     notifyListeners();
   }
 

@@ -1,14 +1,27 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/repositories/favorites_repository.dart';
-import 'package:flutter_application_1/views/home_navigation.dart';
+import 'package:flutter_application_1/services/auth_service.dart';
+import 'package:flutter_application_1/widgets/auth_check.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+late final FirebaseApp app;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => FavoritesRepository(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(create: (context) => FavoritesRepository()),
+      ],
       child: MaterialApp(
-        home: HomeNavigation(),
+        home: AuthCheck(),
         theme: ThemeData.dark(),
       ),
     ),
