@@ -31,10 +31,6 @@ class _HomeState extends State<Home> {
         '1. Em uma panela, derreta a margarina e acrescente a cebola, o sal e a pimenta-do-reino. \n 2.  Quando a cebola estiver bem transparente, acrescente o creme de leite e misture.',
   );
 
-  void _getCategories() {
-    categories = CategoryRepository.getCategories();
-  }
-
   void _getTopRecipes() {
     topRecipes = RecipeRepository.getRecipes();
   }
@@ -42,17 +38,17 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _getCategories();
     _getTopRecipes();
   }
 
   late FavoritesRepository favoritesRep;
+  late CategoryRepository categoriesRep;
 
   @override
   Widget build(BuildContext context) {
     favoritesRep = context.watch<FavoritesRepository>();
+    categoriesRep = context.watch<CategoryRepository>();
 
-    _getCategories();
     _getTopRecipes();
 
     return Scaffold(
@@ -87,36 +83,22 @@ class _HomeState extends State<Home> {
               ListView.separated(
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
+                  bool favorited = false;
                   if (favoritesRep.favRecipes.contains(topRecipes[index])) {
-                    return GestureDetector(
-                      child: RecipeCard(
-                        title: topRecipes[index].name,
-                        rating: topRecipes[index].rating.toInt(),
-                        imageUrl: 'nao',
-                        favorited: true,
-                      ),
-                      onTap: () => seeRecipeDetails(context, topRecipes[index]),
-                      onLongPress: () {
-                        favoritesRep.save(topRecipes[index]);
-                      },
-                    );
-                  } else {
-                    return GestureDetector(
-                      child: RecipeCard(
-                        title: topRecipes[index].name,
-                        rating: topRecipes[index].rating.toInt(),
-                        imageUrl: 'nao',
-                        favorited: false,
-                      ),
-                      onTap: () => seeRecipeDetails(context, topRecipes[index]),
-                      onLongPress: () {
-                        favoritesRep.save(topRecipes[index]);
-                      },
-                    );
+                    favorited = true;
                   }
+                  return GestureDetector(
+                    child: RecipeCard(
+                      title: topRecipes[index].name,
+                      rating: topRecipes[index].rating.toInt(),
+                      imageUrl: 'nao',
+                      favorited: favorited,
+                    ),
+                    onTap: () => seeRecipeDetails(context, topRecipes[index]),
+                    onLongPress: () => saveFavorite(topRecipes[index]);,
+                  );
                 },
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 25),
+                separatorBuilder: (context, index) => const SizedBox(height: 25),
                 itemCount: topRecipes.length,
               ),
             ],
@@ -124,6 +106,12 @@ class _HomeState extends State<Home> {
         ),
       ],
     );
+  }
+
+  saveFavorite(RecipeModel recipe) {
+    setState(() {
+      favoritesRep.save(recipe);
+    });    
   }
 
   seeRecipeDetails(BuildContext context, RecipeModel recipe) {
@@ -224,9 +212,7 @@ class _HomeState extends State<Home> {
   }
 }
 
-searchByCategory(CategoryModel category) {
-  print('sla');
-}
+searchByCategory(CategoryModel category) {}
 
 SliverAppBar appBar() {
   return const SliverAppBar(
