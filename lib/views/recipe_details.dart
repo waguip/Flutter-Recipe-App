@@ -25,7 +25,7 @@ class _RecipeDetailsState extends State<RecipeDetails> {
             children: [
               RecipeCard(
                 title: '',
-                rating: widget.recipe.rating.toInt(),
+                rating: widget.recipe.rating,
                 imageUrl: widget.recipe.image,
                 favorited: true,
               ),

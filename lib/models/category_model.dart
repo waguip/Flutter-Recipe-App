@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
-
 class CategoryModel {
   String name;
-  String iconPath;
-  Icon icon;
-  Color boxColor;
+  String iconImage;
+  String categoryImage;
+  String tag;
 
   CategoryModel({
     required this.name,
-    required this.iconPath,
-    required this.icon,
-    required this.boxColor,
+    required this.iconImage,
+    required this.categoryImage,
+    required this.tag,
   });
 }

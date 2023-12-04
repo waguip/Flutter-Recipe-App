@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
-import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -90,13 +89,14 @@ class _LoginState extends State<Login> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message)),
       );
+      print(e.message);
     }
   }
 
   loginform() {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.only(top: 100),
+        padding: const EdgeInsets.only(top: 100),
         child: Form(
           key: formKey,
           child: Column(
@@ -104,17 +104,17 @@ class _LoginState extends State<Login> {
             children: [
               Text(
                 titulo,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 35,
                   fontWeight: FontWeight.bold,
                   letterSpacing: -1.5,
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: TextFormField(
                   controller: email,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Email',
                   ),
@@ -128,11 +128,11 @@ class _LoginState extends State<Login> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: TextFormField(
                   controller: senha,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Senha',
                   ),
@@ -147,7 +147,7 @@ class _LoginState extends State<Login> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: ElevatedButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
@@ -165,12 +165,12 @@ class _LoginState extends State<Login> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.login),
+                      const Icon(Icons.login),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
                           actionButton,
-                          style: TextStyle(fontSize: 20),
+                          style: const TextStyle(fontSize: 20),
                         ),
                       ),
                     ],

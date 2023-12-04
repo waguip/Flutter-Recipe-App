@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/views/favorites.dart';
 import 'package:flutter_application_1/views/home.dart';
-import 'package:flutter_application_1/views/login.dart';
+import 'package:flutter_application_1/views/profile.dart';
 import 'package:flutter_application_1/views/search.dart';
 
 class HomeNavigation extends StatefulWidget {
@@ -37,7 +37,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
           Home(),
           Search(),
           Favorites(),
-          Login(),
+          Profile(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -47,7 +47,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Pesquisa'),
           BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Favoritas'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Login'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
         ],
         onTap: (page) {
           pc.animateToPage(

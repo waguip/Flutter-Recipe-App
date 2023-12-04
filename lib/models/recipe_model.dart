@@ -2,7 +2,7 @@ class RecipeModel {
   final String name;
   final String image;
   final double rating;
-  final double time;
+  final String time;
   final String ingredients;
   final String steps;
 

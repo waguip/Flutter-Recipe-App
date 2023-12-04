@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_application_1/repositories/category_repository.dart';
+import 'package:flutter_application_1/repositories/recipe_repository.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/repositories/favorites_repository.dart';
@@ -19,6 +20,7 @@ Future main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(create: (context) => RecipeRepository()),
         ChangeNotifierProvider(create: (context) => CategoryRepository()),
         ChangeNotifierProvider(create: (context) => FavoritesRepository()),
       ],

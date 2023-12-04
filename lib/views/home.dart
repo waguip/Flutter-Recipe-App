@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/category_model.dart';
 import 'package:flutter_application_1/repositories/category_repository.dart';
@@ -5,7 +7,6 @@ import 'package:flutter_application_1/repositories/favorites_repository.dart';
 import 'package:flutter_application_1/repositories/recipe_repository.dart';
 import 'package:flutter_application_1/views/recipe_details.dart';
 import 'package:flutter_application_1/views/widgets/recipe_card.dart';
-import 'package:flutter_application_1/views/widgets/search_field.dart';
 import 'package:provider/provider.dart';
 import '../models/recipe_model.dart';
 
@@ -18,38 +19,39 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<CategoryModel> categories = [];
-  List<RecipeModel> topRecipes = [];
-
-  RecipeModel dayRecipeTemp = RecipeModel(
-    name: 'Macarrão ao molho branco',
-    image: 'sla',
-    rating: 5,
-    time: 10,
-    ingredients:
-        '1 cebola pequena picada,\n1 colher de margarina,\n1 caixa de creme de leite,\n1/2 litro de leite',
-    steps:
-        '1. Em uma panela, derreta a margarina e acrescente a cebola, o sal e a pimenta-do-reino. \n 2.  Quando a cebola estiver bem transparente, acrescente o creme de leite e misture.',
-  );
-
-  void _getTopRecipes() {
-    topRecipes = RecipeRepository.getRecipes();
-  }
+  List<RecipeModel> recipeTable = [];
+  late RecipeModel dayRecipeTemp;
 
   @override
   void initState() {
     super.initState();
-    _getTopRecipes();
   }
 
+  late RecipeRepository recipesRep;
   late FavoritesRepository favoritesRep;
   late CategoryRepository categoriesRep;
 
   @override
   Widget build(BuildContext context) {
+    recipesRep = context.watch<RecipeRepository>();
     favoritesRep = context.watch<FavoritesRepository>();
     categoriesRep = context.watch<CategoryRepository>();
 
-    _getTopRecipes();
+    recipeTable = recipesRep.recipeTable;
+    categories = categoriesRep.categories;
+
+    if (recipeTable.isNotEmpty) {
+      dayRecipeTemp = recipeTable[Random().nextInt(recipeTable.length - 1)];
+    } else {
+      dayRecipeTemp = RecipeModel(
+        name: 'a',
+        image: 'a',
+        rating: 2,
+        time: 'a',
+        ingredients: 'a',
+        steps: 'a',
+      );
+    }
 
     return Scaffold(
       body: NestedScrollView(
@@ -57,17 +59,16 @@ class _HomeState extends State<Home> {
         headerSliverBuilder: (context, _) => [appBar()],
         body: ListView(
           children: [
-            const SearchField(),
             dayRecipe(context),
             categoriesSection(),
-            topRecipesColumn(),
+            recipeTableColumn(),
           ],
         ),
       ),
     );
   }
 
-  Column topRecipesColumn() {
+  Column recipeTableColumn() {
     return Column(
       children: [
         Padding(
@@ -84,22 +85,29 @@ class _HomeState extends State<Home> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   bool favorited = false;
-                  if (favoritesRep.favRecipes.contains(topRecipes[index])) {
+                  if (favoritesRep.favRecipes.contains(recipeTable[index])) {
                     favorited = true;
                   }
                   return GestureDetector(
                     child: RecipeCard(
-                      title: topRecipes[index].name,
-                      rating: topRecipes[index].rating.toInt(),
-                      imageUrl: 'nao',
+                      title: recipeTable[index].name,
+                      rating: recipeTable[index].rating,
+                      imageUrl: recipeTable[index].image,
                       favorited: favorited,
                     ),
-                    onTap: () => seeRecipeDetails(context, topRecipes[index]),
-                    onLongPress: () => saveFavorite(topRecipes[index]);,
+                    onTap: () => seeRecipeDetails(context, recipeTable[index]),
+                    onLongPress: () {
+                      if (favorited) {
+                        removeFavorite(recipeTable[index]);
+                      } else {
+                        saveFavorite(recipeTable[index]);
+                      }
+                    },
                   );
                 },
-                separatorBuilder: (context, index) => const SizedBox(height: 25),
-                itemCount: topRecipes.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 25),
+                itemCount: recipeTable.length,
               ),
             ],
           ),
@@ -111,7 +119,13 @@ class _HomeState extends State<Home> {
   saveFavorite(RecipeModel recipe) {
     setState(() {
       favoritesRep.save(recipe);
-    });    
+    });
+  }
+
+  removeFavorite(RecipeModel recipe) {
+    setState(() {
+      favoritesRep.remove(recipe);
+    });
   }
 
   seeRecipeDetails(BuildContext context, RecipeModel recipe) {
@@ -125,20 +139,20 @@ class _HomeState extends State<Home> {
 
   Padding dayRecipe(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Receita do dia',
+            'Receita recomendada',
             style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           GestureDetector(
             child: RecipeCard(
               title: dayRecipeTemp.name,
-              rating: dayRecipeTemp.rating.toInt(),
-              imageUrl: 'sla',
+              rating: dayRecipeTemp.rating,
+              imageUrl: dayRecipeTemp.image,
               favorited: false,
             ),
             onTap: () => seeRecipeDetails(context, dayRecipeTemp),
@@ -178,18 +192,24 @@ class _HomeState extends State<Home> {
                 child: Container(
                   width: 100,
                   decoration: BoxDecoration(
-                    color: categories[index].boxColor.withOpacity(0.7),
+                    image: DecorationImage(
+                        image: NetworkImage(categories[index].categoryImage),
+                        fit: BoxFit.cover,
+                        opacity: 0.6),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
-                        width: 50,
-                        height: 50,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
+                        alignment: Alignment.center,
+                        width: 45,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(categories[index].iconImage),
+                            fit: BoxFit.contain,
+                          ),
                         ),
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
@@ -198,7 +218,9 @@ class _HomeState extends State<Home> {
                       Text(
                         categories[index].name,
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -212,7 +234,9 @@ class _HomeState extends State<Home> {
   }
 }
 
-searchByCategory(CategoryModel category) {}
+searchByCategory(CategoryModel category) {
+  print(category.tag);
+}
 
 SliverAppBar appBar() {
   return const SliverAppBar(

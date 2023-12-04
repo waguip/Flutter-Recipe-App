@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AuthException implements Exception {
   String message;
@@ -7,9 +11,11 @@ class AuthException implements Exception {
 }
 
 class AuthService extends ChangeNotifier {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   User? usuario;
   bool isLoading = true;
+
+  FirebaseAuth get auth => _auth;
 
   AuthService() {
     _authCheck();
@@ -34,7 +40,6 @@ class AuthService extends ChangeNotifier {
         email: email,
         password: password,
       );
-      print("Do registere auth_service: ${email}, ${password}");
       _getUser();
     } on FirebaseAuthException catch (e) {
       print(e.code);
@@ -47,13 +52,11 @@ class AuthService extends ChangeNotifier {
   }
 
   Future login(String email, String password) async {
-    print("Entrou no login");
     try {
       await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      print("Do login auth_service: ${email}, ${password}");
       _getUser();
     } on FirebaseAuthException catch (e) {
       print(e.code);
@@ -70,5 +73,20 @@ class AuthService extends ChangeNotifier {
   Future logout() async {
     await _auth.signOut();
     _getUser();
+  }
+
+  Future uploadImage(XFile? image) async {
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference ref = storage.ref().child("profile/${DateTime.now().toString()}");
+    UploadTask uploadTask = ref.putFile(File(image!.path));
+    uploadTask.whenComplete(() async {
+      String url = await ref.getDownloadURL();
+      print("Profile Picture uploaded $url");
+      _updateUserPhoto(url);
+    });
+  }
+
+  _updateUserPhoto(String url) {
+    usuario?.updatePhotoURL(url);
   }
 }

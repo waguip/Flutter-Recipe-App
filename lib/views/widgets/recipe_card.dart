@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class RecipeCard extends StatelessWidget {
   final String title;
-  final int rating;
+  final double rating;
   final String imageUrl;
   final bool favorited;
 
@@ -26,9 +26,7 @@ class RecipeCard extends StatelessWidget {
             Colors.black.withOpacity(0.5),
             BlendMode.multiply,
           ),
-          image: const NetworkImage(
-            'https://img.freepik.com/fotos-gratis/fettuccine-de-macarrao-a-bolonhesa-com-molho-de-tomate-em-tigela-branca_2829-20035.jpg?w=996&t=st=1695611280~exp=1695611880~hmac=31e7d09b1dc17556e16526b1354ffc0a600edc0de34aed23ce5cd85ccf187547',
-          ),
+          image: NetworkImage(imageUrl),
           fit: BoxFit.fill,
         ),
       ),

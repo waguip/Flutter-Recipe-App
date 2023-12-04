@@ -1,57 +1,84 @@
-import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
+import 'package:flutter_application_1/database/db.dart';
+import 'package:sqflite/sqlite_api.dart';
 import '../models/category_model.dart';
+import 'package:http/http.dart' as http;
 
 class CategoryRepository extends ChangeNotifier {
-  final List<CategoryModel> _categories = [];
+  List<CategoryModel> _categories = [];
 
-  UnmodifiableListView<CategoryModel> get categories =>
-      UnmodifiableListView(_categories);
+  List<CategoryModel> get categories => _categories;
 
-  save(CategoryModel categorie) {
-    if (!_categories.contains(categorie)) _categories.add(categorie);
-    notifyListeners();
+  CategoryRepository() {
+    _setupCategories();
+    _setupDataCategories();
+    _readCategories();
   }
 
-  saveAll(List<CategoryModel> categories) {
-    for (var categorie in categories) {
-      if (!_categories.contains(categorie)) _categories.add(categorie);
+  _setupCategories() async {
+    const String table = '''
+      CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        iconImage TEXT,
+        categoryImage TEXT,
+        tag TEXT 
+      );
+    ''';
+    Database db = await DB.instance.database;
+    await db.execute(table);
+  }
+
+  _setupDataCategories() async {
+    if (await _categoriesTableIsEmpty()) {
+      Uri uri = Uri.https('yummly2.p.rapidapi.com', 'categories/list');
+
+      final response = await http.get(uri, headers: {
+        "x-rapidapi-key": "828f2dd24dmshb55d4148d3f6819p19518ejsn2b485e6035ac",
+        "x-rapidapi-host": "yummly2.p.rapidapi.com",
+      });
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final List<dynamic> categories = json['browse-categories'];
+        Database db = await DB.instance.database;
+        Batch batch = db.batch();
+
+        categories.forEach((category) {
+          batch.insert('categories', {
+            'name': category['display']['displayName'],
+            'iconImage': category['display']['iconImage'],
+            'categoryImage': category['display']['categoryImage'],
+            'tag': category['display']['tag'],
+          });
+        });
+
+        await batch.commit(noResult: true);
+      }
     }
-    notifyListeners();
   }
 
-  remove(CategoryModel categorie) {
-    _categories.remove(categorie);
-    notifyListeners();
+  _categoriesTableIsEmpty() async {
+    Database db = await DB.instance.database;
+    List results = await db.query('categories');
+    return results.isEmpty;
   }
 
-  // CategoryRepository.save(CategoryModel(
-  //     name: 'Café da manhã',
-  //     iconPath: 'assets',
-  //     icon: const Icon(Icons.fastfood),
-  //     boxColor: const Color.fromARGB(255, 133, 116, 92),
-  //   ));
+  _readCategories() async {
+    Database db = await DB.instance.database;
+    List results = await db.query('categories');
 
-  //   _categories.add(CategoryModel(
-  //     name: 'Almoço',
-  //     iconPath: 'assets',
-  //     icon: const Icon(Icons.fastfood),
-  //     boxColor: const Color.fromARGB(255, 47, 79, 154),
-  //   ));
+    _categories = results.map((e) {
+      return CategoryModel(
+        name: e['name'],
+        iconImage: e['iconImage'],
+        categoryImage: e['categoryImage'],
+        tag: e['tag'].toString(),
+      );
+    }).toList();
 
-  //   _categories.add(CategoryModel(
-  //     name: 'Lanche',
-  //     iconPath: 'assets',
-  //     icon: const Icon(Icons.fastfood),
-  //     boxColor: const Color.fromARGB(255, 108, 116, 18),
-  //   ));
-
-  //   _categories.add(CategoryModel(
-  //     name: 'Doce',
-  //     iconPath: 'assets',
-  //     icon: const Icon(Icons.fastfood),
-  //     boxColor: const Color.fromARGB(255, 100, 42, 147),
-  //   ));
+    notifyListeners();
+  }
 }

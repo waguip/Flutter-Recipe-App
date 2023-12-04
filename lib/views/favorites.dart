@@ -72,8 +72,8 @@ class _FavoritesState extends State<Favorites> {
                         return GestureDetector(
                           child: RecipeCard(
                             title: favorites.favRecipes[index].name,
-                            rating: favorites.favRecipes[index].rating.toInt(),
-                            imageUrl: 'nao',
+                            rating: favorites.favRecipes[index].rating,
+                            imageUrl: favorites.favRecipes[index].image,
                             favorited: true,
                           ),
                           onTap: () => seeRecipeDetails(
